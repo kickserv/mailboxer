@@ -34,6 +34,11 @@ describe Mailboxer::MessageMailer do
       it "shouldn't send an email to cylon entity" do
         expect(sent_to?(entity3)).to be false
       end
+
+      it "should not have a layout by default" do
+        email = ActionMailer::Base.deliveries.last
+        expect(email.encoded).to_not include("Default Mailer Layout")
+      end
     end
 
     describe "when replying" do
@@ -59,6 +64,26 @@ describe Mailboxer::MessageMailer do
         expect(sent_to?(entity3)).to be false
       end
     end
+
+    describe "when default_layout is not false" do
+      before :all do
+        Mailboxer.default_layout = "default_mailer_layout"
+      end
+
+      before do
+        sender.send_message([entity1, entity2, entity3], "Body", "Subject")
+      end
+
+      after :all do
+        Mailboxer.default_layout = false
+      end
+
+      it "should have a layout equal to default_mailer_layout" do
+        email = ActionMailer::Base.deliveries.last
+        expect(email.encoded).to include("Default Mailer Layout")
+      end
+    end
+
   end
 
   context "when mailer_wants_array is false" do
@@ -90,6 +115,7 @@ describe Mailboxer::MessageMailer do
 
     it_behaves_like 'message_mailer'
   end
+
 end
 
 def print_emails

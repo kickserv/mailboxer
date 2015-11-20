@@ -1,7 +1,11 @@
 class Mailboxer::BaseMailer < ActionMailer::Base
   default :from => Mailboxer.default_from
+  layout  :default_layout
 
   private
+  def default_layout
+    Mailboxer.default_layout ? Mailboxer.default_layout : false
+  end
 
   def set_subject(container)
     @subject  = container.subject.html_safe? ? container.subject : strip_tags(container.subject)
